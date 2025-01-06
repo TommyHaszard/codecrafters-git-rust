@@ -42,7 +42,7 @@ fn main() {
             let mut string_content = String::new();
             gz.read_to_string(&mut string_content).unwrap();
             if let Some((_, after)) = string_content.split_once('\0') {
-                println!("{}", after);
+                print!("{}", after);
             } else {
                 println!("Delimiter not found in the string.");
             }
