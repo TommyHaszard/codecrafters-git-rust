@@ -60,19 +60,19 @@ fn hash_object(write_to_file: bool, path_to_file: String) -> io::Result<()>{
     //eprintln!("Dir: {}", dir.to_str().unwrap());
     let file_contents = fs::read_to_string(dir)?;
 
-    let count = file_contents.len()-1;
+    let count = file_contents.len();
     //eprintln!("Count of Chars in file: {}", count);
-    let file_with_blob_header = format!("blob <{}>\0{}", count, file_contents);
+    let file_with_blob_header = format!("blob {}\0{}", count, file_contents);
     //print!("{}", &file_with_blob_header);
-    let sha = Sha1::digest(file_with_blob_header);
-    let mut sha_string = String::new();
+    let sha = Sha1::digest(&file_with_blob_header);
+    let mut sha_string = hex::encode(sha);
     // Convert each byte to a two-character hex representation
-    for byte in sha {
-        std::fmt::Write::write_fmt(&mut sha_string, format_args!("{:02x}", byte)).unwrap_or_else(|err| {
-            eprintln!("error {err}");
-            std::process::exit(1);
-        });
-    }
+    // for byte in sha {
+    //     std::fmt::Write::write_fmt(&mut sha_string, format_args!("{:02x}", byte)).unwrap_or_else(|err| {
+    //         eprintln!("error {err}");
+    //         std::process::exit(1);
+    //     });
+    // }
     print!("{}", &sha_string);
     //println!("SHA LEN: {}", sha.len());
     if(write_to_file) {
@@ -81,7 +81,7 @@ fn hash_object(write_to_file: bool, path_to_file: String) -> io::Result<()>{
         let hash_file_path = format!("{}/{}", create_hash_dir, &sha_string[2..]);
         let new_file = File::create(hash_file_path)?;
         let mut gz = ZlibEncoder::new(new_file, Default::default());
-        gz.write_all(file_contents.as_bytes())?;
+        gz.write_all(file_with_blob_header.as_bytes())?;
         gz.finish()?;
     }
     Ok(())
