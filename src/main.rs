@@ -60,9 +60,10 @@ fn hash_object(write_to_file: bool, path_to_file: String) -> io::Result<()>{
     //eprintln!("Dir: {}", dir.to_str().unwrap());
     let file_contents = fs::read_to_string(dir)?;
 
-    let count = file_contents.len();
+    let count = file_contents.len()-1;
     //eprintln!("Count of Chars in file: {}", count);
     let file_with_blob_header = format!("blob <{}>\0{}", count, file_contents);
+    //print!("{}", &file_with_blob_header);
     let sha = Sha1::digest(file_with_blob_header);
     let mut sha_string = String::new();
     // Convert each byte to a two-character hex representation
