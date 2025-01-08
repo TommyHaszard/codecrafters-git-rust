@@ -21,6 +21,11 @@ enum ArgCommand {
         #[clap(short = 'w')]
         write_to_object_path: bool,
         path_to_file: String,
+    },
+    LsTree {
+        #[clap(long = "name-only")]
+        name_only: bool,
+        tree_sha: String,
     }
 }
 
@@ -31,6 +36,10 @@ fn main() {
         ArgCommand::Init => commands::init::trigger(),
         ArgCommand::CatFile { pretty_print, object_hash} => commands::cat_file::trigger(pretty_print, object_hash),
         ArgCommand::HashObject {write_to_object_path, path_to_file} => commands::hash_object::trigger(write_to_object_path, path_to_file).unwrap_or_else(|err| {
+            eprintln!("error {err}");
+            std::process::exit(1);
+        }),
+        ArgCommand::LsTree { name_only, tree_sha } => commands::ls_tree::trigger(name_only, tree_sha).unwrap_or_else(|err| {
             eprintln!("error {err}");
             std::process::exit(1);
         }),
