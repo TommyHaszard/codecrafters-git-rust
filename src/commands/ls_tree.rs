@@ -2,7 +2,7 @@ use std::{fs, io};
 use std::io::Read;
 use flate2::read::ZlibDecoder;
 use crate::commands::cat_file;
-use crate::OBJECT_PATH;
+use crate::{Errors, OBJECT_PATH};
 
 enum Permission {
     RegularFile,
@@ -24,11 +24,11 @@ impl Permission {
 struct TreeObject {
     mode: Permission,
     name: String,
-    sha_hash: String,
+    sha_hash: [u8; 20],
 }
 
 impl TreeObject {
-    fn new(permission: Permission, name: String, sha_hash: String) -> TreeObject {
+    fn new(permission: Permission, name: String, sha_hash: [u8; 20]) -> TreeObject {
         TreeObject {
             mode: permission,
             name,
@@ -37,7 +37,13 @@ impl TreeObject {
     }
 }
 
-pub(crate) fn trigger(name_only: bool, tree_sha: String) -> io::Result<()>{
-    cat_file::trigger(false, tree_sha);
+pub(crate) fn trigger(name_only: bool, tree_sha: String) -> Result<(), Errors>{
+    let mut cursor = 0;
+
+    if !tree_sha.starts_with("tree ") {
+        Errors::InvalidInput(format!("Tree_sha: {} does not start with tree, its not a tree object.", tree_sha));
+    }
+
     Ok(())
+
 }
